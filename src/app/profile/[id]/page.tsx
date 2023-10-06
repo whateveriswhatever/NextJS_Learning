@@ -6,15 +6,41 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import img from "@/img/none_avatar.jpg";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const UserProfilePage = ({ params }: any) => {
   const [username, setUsername] = useState("");
   const [userEmail, setUserEmail] = useState("");
   const [isWantedToSeeMore, setIsWantedToSeeMore] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // useEffect(() => {
+  //   if (isWantedToSeeMore) {
+  //     try {
+  //       setIsLoading(true);
+  //       retriveUserInfor();
+  //     } catch (err: any) {
+  //       console.log(`Error: ${err}`);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // }, [isWantedToSeeMore]);
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        retriveUserInfor();
+      } catch (err: any) {
+        console.log(`Error: ${err}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     if (isWantedToSeeMore) {
-      retriveUserInfor();
+      fetchData();
     }
   }, [isWantedToSeeMore]);
 
@@ -31,25 +57,6 @@ const UserProfilePage = ({ params }: any) => {
   };
 
   return (
-    // <div className="flex flex-col items-center justify-center min-h-screen py-2 min-w-full">
-    //   <NavBar />
-    //   <h1 style={{ marginTop: "-5rem" }}>Profile</h1>
-    //   <AvatarSection />
-    //   {/* <NavBar /> */}
-
-    //   {/* <div style={{ marginTop: "4rem" }}>
-    //     <p className="text-1xl">
-    //       Profile Page
-    //       <span className="p-2 ml-2 bg-orange-500 text-black ">
-    //         {params.id}
-    //       </span>
-    //     </p>
-    //   </div> */}
-    //   {/* <p className="text-1xl">
-    //     Profile Page
-    //     <span className="p-2 ml-2 bg-orange-500 text-black ">{params.id}</span>
-    //   </p> */}
-    // </div>
     <div
       style={{
         minWidth: "100vw",
@@ -57,6 +64,8 @@ const UserProfilePage = ({ params }: any) => {
         // maxHeight: "92px",
         // height: "100%",
         // position: "relative",
+        overflowX: "hidden",
+        overflowY: "hidden",
       }}
     >
       <NavBar />
@@ -86,20 +95,6 @@ const UserProfilePage = ({ params }: any) => {
               />
             </svg>
           ) : (
-            // <svg
-            //   xmlns="http://www.w3.org/2000/svg"
-            //   width="16"
-            //   height="16"
-            //   fill="currentColor"
-            //   className="bi bi-arrow-up"
-            //   viewBox="0 0 16 16"
-            // >
-            //   <path
-            //     fill-rule="evenodd"
-            //     d="M8 15a.5.5 0 0 0 .5-.5V2.707l3.146 3.147a.5.5 0 0 0 .708-.708l-4-4a.5.5 0 0 0-.708 0l-4 4a.5.5 0 1 0 .708.708L7.5 2.707V14.5a.5.5 0 0 0 .5.5z"
-            //   />
-            // </svg>
-
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -122,8 +117,10 @@ const UserProfilePage = ({ params }: any) => {
         }
       />
 
-      {isWantedToSeeMore && (
+      {isWantedToSeeMore && !isLoading ? (
         <DisplayingUserInfor username={username} user_email={userEmail} />
+      ) : (
+        <div>Processing...</div>
       )}
     </div>
   );
@@ -133,36 +130,67 @@ export default UserProfilePage;
 
 const NavBar: React.FC = () => {
   const router = useRouter();
+
+  const onLogout = async () => {
+    try {
+      await axios.get("/api/users/logout");
+      toast.success("Logout successfully !");
+      router.push("/login");
+    } catch (err: any) {
+      console.log(`Failed to log out! >>>> ${err.message}`);
+      toast.error(err.message);
+    }
+  };
+
   return (
-    <div>
+    <div style={{ display: "flex", marginLeft: "110rem" }}>
+      <button onClick={onLogout} className="bg-pink-700 text-white p-2">
+        Log out
+      </button>
       <div
-        id="logout_btn"
-        style={{
-          position: "relative",
-          top: "0",
-          // marginTop: "-25rem",
-          // marginLeft: "80rem",
-          float: "right",
-          marginRight: "4rem",
-        }}
+        style={{ marginLeft: "1rem" }}
+        className="bg-emerald-400 p-2 text-white"
       >
-        <button
-          className="bg-gray-600 p-2 text-white"
-          onClick={async () => {
-            try {
-              await axios.get("/api/users/logout");
-              toast.success("Logout successfully !");
-              router.push("/login");
-            } catch (err: any) {
-              console.log(`Failed to log out! >>>> ${err.message}`);
-              toast.error(err.message);
-            }
-          }}
-        >
-          Log out
-        </button>
+        <Link href="/">Home</Link>
       </div>
     </div>
+    // <div
+    // // style={{ display: "flex", flexDirection: "row", alignItems: "flex-end" }}
+    // // style={{ display: "inline-block" }}
+    // >
+    // <div
+    //   id="logout_btn"
+    //   style={{
+    //     position: "relative",
+    //     top: "0",
+    //     // marginTop: "-25rem",
+    //     // marginLeft: "80rem",
+    //     float: "right",
+    //     marginRight: "4rem",
+    //   }}
+    //   onClick={() => console.log("Clicked div!")}
+    // >
+    //   <button
+    //     className="bg-gray-600 p-2 text-white"
+    //     style={{ cursor: "pointer" }}
+    //     onClick={() => console.log("Clicked!")}
+    //   >
+    //     Log out
+    //   </button>
+    //   {/* <div
+    //       className="bg-emerald-300 p-2 text-white"
+    //       style={{ textAlign: "center" }}
+    //     >
+    //       <Link href="/">Home</Link>
+    //     </div> */}
+    // </div>
+    // //   {/* <div
+    // //     className="bg-emerald-300 p-2 text-white"
+    // //     style={{ textAlign: "center" }}
+    // //   >
+    // //     <Link href="/">Home</Link>
+    // //   </div> */}
+    // // </div>
   );
 };
 
@@ -208,7 +236,7 @@ const Main: React.FC<IMain> = ({ user_id }) => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "30vw",
-          marginLeft: "7.8rem",
+          marginLeft: "1rem",
           fontSize: "2.2rem",
           fontWeight: "bold",
         }}
@@ -221,7 +249,9 @@ const Main: React.FC<IMain> = ({ user_id }) => {
         <AvatarSection />
       </div>
 
-      <div id="user_id">@{user_id}</div>
+      <div id="user_id" style={{ fontWeight: "bold", fontSize: "1.2rem" }}>
+        @{user_id}
+      </div>
       <div></div>
     </div>
   );
@@ -246,15 +276,27 @@ const DisplayingUserInfor: React.FC<IUserInfor> = ({
         height: "20vw",
       }}
     >
-      <div style={{ flexDirection: "column" }}>
+      <div
+        style={{
+          flexDirection: "column",
+          border: "1px solid #000",
+          padding: "1rem",
+        }}
+      >
         <div>
-          <span>Username: </span>
-          {username}
+          {/* <span>Username: </span>
+          {username} */}
+          <p>
+            Username: <span style={{ fontWeight: "bold" }}>{username}</span>
+          </p>
         </div>
         <br />
         <div>
-          <span>Email: </span>
-          {user_email}
+          {/* <span>Email: </span>
+          {user_email} */}
+          <p>
+            Email: <span style={{ fontWeight: "bold" }}>{user_email}</span>
+          </p>
         </div>
       </div>
     </div>
