@@ -36,6 +36,6 @@ export const handler = async (req: NextRequest) => {
       );
     }
   } else {
-    NextResponse.json({ message: "Method ain't allowed !" }, { status: 4001 });
+    NextResponse.json({ message: "Method ain't allowed !" }, { status: 401 });
   }
 };

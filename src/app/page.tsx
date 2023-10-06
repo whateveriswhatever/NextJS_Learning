@@ -118,8 +118,8 @@ export default function Home() {
 
 let GreetingUser: React.FC = () => {
   return (
-    <div className="text-center">
-      <h2>Welcome to our webpage</h2>
+    <div className="text-center" style={{ fontSize: "1.8rem" }}>
+      <h1>Welcome to our webpage</h1>
     </div>
   );
 };
